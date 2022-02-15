@@ -23,7 +23,7 @@ def robot_is_moving() -> bool:
 while not robot_is_moving():
     print("waiting for initial movement...")
 
-WAIT_FOR_S = 20.0
+WAIT_FOR_S = 10.0
 
 t0 = time.perf_counter()
 while (time.perf_counter() - t0) < WAIT_FOR_S:
