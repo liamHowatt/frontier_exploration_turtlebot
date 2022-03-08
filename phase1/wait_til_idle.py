@@ -10,7 +10,7 @@ def robot_is_moving() -> bool:
     except subprocess.TimeoutExpired:
         return False
     vels = vels.decode()
-    vels = dict(zip(*(col.split(",") for col in vels.strip().splitlines())))
+    vels = dict(zip(*(row.split(",") for row in vels.strip().splitlines())))
     return not (
         vels["field.linear.x"] == "0.0"
         and vels["field.linear.y"] == "0.0"
