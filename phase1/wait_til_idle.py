@@ -29,4 +29,4 @@ t0 = time.perf_counter()
 while (time.perf_counter() - t0) < WAIT_FOR_S:
     if robot_is_moving():
         t0 = time.perf_counter()
-    print(f"stopped for {round(time.perf_counter() - t0, 2)} s out of {WAIT_FOR_S} s")
+    print("stopped for {} s out of {} s".format(round(time.perf_counter() - t0, 2), WAIT_FOR_S))
