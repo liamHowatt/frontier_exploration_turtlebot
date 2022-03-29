@@ -58,3 +58,7 @@ if(CATKIN_ENABLE_TESTING)
   ${catkin_EXPORTED_TARGETS}
   )
 endif()
+
+catkin_install_python(PROGRAMS phase2/scan_sub.py
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)

@@ -40,6 +40,7 @@
   </node>
 
   <include file="$(find turtlebot3_navigation)/launch/move_base.launch">
+    <!-- <param name="DWAPlannerROS/min_vel_x" value="0.0"/> -->
   </include>
 
   <node
