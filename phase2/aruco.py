@@ -119,14 +119,24 @@ class camera_1:
                 dist = math.sqrt(math.pow((xpos-320),2) + math.pow((480-ypos),2))
                 angle = math.atan(float(xpos-320)/float(480-ypos))
                 area = math.pow(((abs(top_right[Y]-bottom_right[Y])+abs(top_left[Y]-bottom_left[Y]))/2.0),2)
-                area_calibration = 2000
-                distance_calibration = 100.0
-                real_dist = (((area_calibration/area)*distance_calibration)/math.cos(angle))
+
+                # area_calibration = 13500
+                # distance_calibration = 100.0
+                # real_dist = (area*distance_calibration)/(area_calibration*math.cos(angle))
+                real_dist = (1.019e6 / (area - -2159.29)) + 33.7958
+
+                markerXdist = real_dist * math.cos(angle)
+                markerYdist = real_dist * math.sin(angle)
                 print 'Distance:', real_dist, 'mm @', math.degrees(angle), 'degrees', area
+                print "XDist: {} mm, YDist: {} mm, realDist: {} mm".format(markerXdist, markerYdist, real_dist)
+                print
             
                             
-                location_str = str(real_dist)+", "+str(math.degrees(angle)) + ", " + str(marker_id) # <-- OUTPUT STRING FORMAT
-                
+                # location_str = str(real_dist)+", "+str(math.degrees(angle)) + ", " + str(marker_id) # <-- OUTPUT STRING FORMAT
+                location_str = ",".join(map(str, [
+                    real_dist, math.degrees(angle), marker_id, markerXdist, markerYdist
+                ]))
+
                 rospy.loginfo(location_str)
                 self.location.publish(location_str)
 

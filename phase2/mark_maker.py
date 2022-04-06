@@ -54,12 +54,14 @@ class MarkMaker:
 
     def cam_callback(self, data):
         # rostopic pub /location std_msgs/String '0.0,0.0' -r 2
-        distance, angle, marker_id = data.data.split(",")
+        distance, angle, marker_id, x_distance, y_distance = data.data.split(",")
         distance = float(distance)
         angle = float(angle)
         marker_id = int(marker_id)
+        x_distance = float(x_distance)
+        y_distance = float(y_distance)
 
-        marker = create_marker(marker_id, distance / 1000.0, 0.0)
+        marker = create_marker(marker_id, x_distance / 1000.0, -y_distance / 1000.0)
         self.mark_pub.publish(marker)
 
 

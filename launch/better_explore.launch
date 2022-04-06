@@ -49,4 +49,8 @@
     args="-a -x /camera/(.*) --duration=$(arg secs) -O $(find turtlebot_walker)/results/turtlebotRecord.bag"
     if="$(arg record)"
   />
+
+  <node pkg = "frontier_exploration_turtlebot" name="arucopy" type="aruco.py" output="screen" />
+  <node pkg = "frontier_exploration_turtlebot" name="laserpy" type="laser.py" output="screen" />
+  <node pkg = "frontier_exploration_turtlebot" name="mark_makerpy" type="mark_maker.py" output="screen" />
 </launch>

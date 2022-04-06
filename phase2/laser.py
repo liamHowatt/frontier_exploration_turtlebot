@@ -44,8 +44,8 @@ class Scanterceptor:
                 (ang + 180) % 360
                 for ang
                 in xrange(
-                    int(angle_at - 15),
-                    int(angle_at + (15 + 1)) + 1
+                    int(angle_at - 7.5),
+                    int(angle_at + (7.5 + 1)) + 1
                 )
             }
 
@@ -64,7 +64,7 @@ class Scanterceptor:
         self.scan_pub.publish(data)
 
     def cam_callback(self, data):
-        distance, angle, _ = data.data.split(",")
+        distance, angle, _ = data.data.split(",", 2)
         self.persistor.set( (float(distance), float(angle)) )
 
 def main():
