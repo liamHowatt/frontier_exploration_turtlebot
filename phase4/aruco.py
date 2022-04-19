@@ -4,6 +4,7 @@ import rospy
 import cv2
 import numpy as np
 import math
+import json
 
 from sensor_msgs.msg import Image, CompressedImage
 from cv_bridge import CvBridge, CvBridgeError
@@ -11,6 +12,8 @@ from pyzbar.pyzbar import decode
 from std_msgs.msg import String
 
 X, Y = 0, 1
+# X, Y = 1, 0
+
 
 desired_aruco_dictionary = "DICT_5X5_50"
 
@@ -34,6 +37,10 @@ ARUCO_DICT = {
   "DICT_ARUCO_ORIGINAL": cv2.aruco.DICT_ARUCO_ORIGINAL
 }
 
+def distance(p1, p2):
+    (x1, y1), (x2, y2) = p1, p2
+    return (((x1 - x2) ** 2) + ((y1 - y2) ** 2)) ** 0.5
+
 class camera_1:
 
     def __init__(self):
@@ -43,7 +50,7 @@ class camera_1:
 
     def callback(self,data):
 
-        bridge = CvBridge()
+        # bridge = CvBridge()
 
         # try:
         #   cv_image = bridge.imgmsg_to_cv2(data, "bgr8")
@@ -85,7 +92,8 @@ class camera_1:
             ids = ids.flatten()
             for (marker_corner, marker_id) in zip(corners, ids):
                 corners = marker_corner.reshape((4,2))
-                (top_left, top_right, bottom_right, bottom_left) = corners
+                # (top_left, top_right, bottom_right, bottom_left) = corners
+                (top_left, bottom_left, bottom_right, top_right) = corners
                 top_right = (int(top_right[0]), int(top_right[1]))
                 bottom_right = (int(bottom_right[0]), int(bottom_right[1]))
                 bottom_left = (int(bottom_left[0]), int(bottom_left[1]))
@@ -116,9 +124,35 @@ class camera_1:
                 # print points
                 # print 'Position:', xpos, ypos, xpos-320, 480-ypos
             
+                pseudo_size = (
+                    (
+                        distance(top_left, top_right)
+                        + distance(top_right, bottom_right)
+                        + distance(bottom_right, bottom_left)
+                        + distance(bottom_left, top_left)
+                    )
+                    / 4.0
+                )
+
                 dist = math.sqrt(math.pow((xpos-320),2) + math.pow((480-ypos),2))
                 angle = math.atan(float(xpos-320)/float(480-ypos))
-                area = math.pow(((abs(top_right[Y]-bottom_right[Y])+abs(top_left[Y]-bottom_left[Y]))/2.0),2)
+                # area = math.pow(
+                #     (
+                #         (
+                #             abs(top_right[Y] - bottom_right[Y])
+                #             + abs(top_left[Y] - bottom_left[Y])
+                #         )
+                #         / 2.0
+                #     ),
+                #     2
+                # )
+                area = pseudo_size ** 2
+
+                print top_left, top_right
+                print bottom_left, bottom_right
+                # print (top_left[X], top_left[Y]), (top_right[X], top_right[Y])
+                # print (bottom_left[X], bottom_left[Y]), (bottom_right[X], bottom_right[Y])
+                print
 
                 # area_calibration = 13500
                 # distance_calibration = 100.0
@@ -127,15 +161,23 @@ class camera_1:
 
                 markerXdist = real_dist * math.cos(angle)
                 markerYdist = real_dist * math.sin(angle)
-                print 'Distance:', real_dist, 'mm @', math.degrees(angle), 'degrees', area
-                print "XDist: {} mm, YDist: {} mm, realDist: {} mm".format(markerXdist, markerYdist, real_dist)
-                print
+                # print 'Distance:', real_dist, 'mm @', math.degrees(angle), 'degrees', area
+                # print "XDist: {} mm, YDist: {} mm, realDist: {} mm".format(markerXdist, markerYdist, real_dist)
+                # print '"area":', area
+                # print
             
+
                             
-                # location_str = str(real_dist)+", "+str(math.degrees(angle)) + ", " + str(marker_id) # <-- OUTPUT STRING FORMAT
-                location_str = ",".join(map(str, [
-                    real_dist, math.degrees(angle), marker_id, markerXdist, markerYdist
-                ]))
+                location_str = json.dumps({
+                    "real_dist": real_dist,
+                    "angle": math.degrees(angle),
+                    "marker_id": int(marker_id),
+                    "markerXdist": markerXdist,
+                    "markerYdist": markerYdist,
+                    "area": area,
+                    "pseudo_angle": center_x - 320,
+                    "pseudo_size": pseudo_size
+                })
 
                 rospy.loginfo(location_str)
                 self.location.publish(location_str)
@@ -173,9 +215,9 @@ class camera_1:
 
         #text = "{}".format(qr_data)
         #cv2.putText(resized_image, text, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
-        cv2.imshow("Camera output", resized_image)
+        # cv2.imshow("Camera output", resized_image)
 
-        cv2.waitKey(5)
+        # cv2.waitKey(5)
 
     
 
